@@ -54,8 +54,6 @@ class RotationQuaterion(NamedArray):
 
         conj = RotationQuaterion(self.eta, -self.epsilon)
 
-        # TODO remove this
-        # conj = quaternion_solu.RotationQuaterion.conjugate(self)
         return conj
 
     def diff(self, other: 'RotationQuaterion') -> 'RotationQuaterion':
