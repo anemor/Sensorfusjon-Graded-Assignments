@@ -90,22 +90,18 @@ class ModelIMU:
         Returns:
             x_nom_pred: predicted nominal state
         """
-        a = x_est_nom.ori.as_rotmat() @ (z_corr.acc - x_est_nom.accm_bias) + self.g      # z_corr.acc - x_est_nom.accm_bias?
-        w = z_corr.avel - x_est_nom.gyro_bias                                            # z_corr.avel - x_est_nom.gyro_bias?
+        a = x_est_nom.ori.R @ (z_corr.acc) + self.g
+        w = z_corr.avel
         pos_pred = x_est_nom.pos + dt * x_est_nom.vel + (dt*dt/2) * a
         vel_pred = x_est_nom.vel + dt * a
 
         delta_rot = RotationQuaterion.from_avec(dt*w)
         ori_pred = x_est_nom.ori.multiply(delta_rot)
 
-        acc_bias_pred = scipy.linalg.expm(-self.accm_bias_p * dt * np.eye(3)) @ a #x_est_nom.accm_bias
-        gyro_bias_pred = scipy.linalg.expm(-self.gyro_bias_p * dt * np.eye(3)) @ w #x_est_nom.gyro_bias
-
-        #acc_bias_pred = -self.accm_bias_p * np.eye(3) @ a    #x_est_nom.accm_bias
-        #gyro_bias_pred = -self.gyro_bias_p * np.eye(3) @ w    #x_est_nom.gyro_bias
+        acc_bias_pred = scipy.linalg.expm(-self.accm_bias_p * dt * np.eye(3)) @ x_est_nom.accm_bias
+        gyro_bias_pred = scipy.linalg.expm(-self.gyro_bias_p * dt * np.eye(3)) @ x_est_nom.gyro_bias
 
         x_nom_pred = NominalState(pos_pred, vel_pred, ori_pred, acc_bias_pred, gyro_bias_pred)
-        # x_nom_pred = models_solu.ModelIMU.predict_nom(self, x_est_nom, z_corr, dt)
         return x_nom_pred
 
     def A_c(self,
