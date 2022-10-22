@@ -55,20 +55,12 @@ class SensorGNSS:
         H = self.H(x_est_nom)
         R = self.R
 
-        # Should we use x_t = x_nom + x_err ?
-        # x_t_pos = x_est_nom.pos + x_est_err.mean.pos
-        # x_t_vel = x_est_nom.vel + x_est_err.mean.vel
-        # x_t_ori = x_est_nom.ori.multiply(RotationQuaternion.from_avec(1, 0.5*x_est_err.mean.avec))
-        # x_t_acc = x_est_nom.accm_bias + x_est_err.mean.accm_bias
-        # x_t_gyro = x_est_nom.gyro_bias + x_est_err.mean.gyro_bias
-        # x_t = NominalState(x_t_pos, x_t_vel, x_t_ori, x_t_acc, x_t_gyro)
+        Ra = x_est_nom.ori.R @ self.lever_arm
+        z_pred = x_est_nom[0:3] + Ra + x_est_err.mean[0:3]
 
-        z_pred = H @ x_est_err.mean
         S = H @ x_est_err.cov @ H.T + R
 
         z_pred = GnssMeasurement.from_array(z_pred)
         z_gnss_pred_gauss = MultiVarGauss[GnssMeasurement](z_pred, S)
 
-        # Finish task and remove this:
-        z_gnss_pred_gauss = sensors_solu.SensorGNSS.pred_from_est(self, x_est)
         return z_gnss_pred_gauss
