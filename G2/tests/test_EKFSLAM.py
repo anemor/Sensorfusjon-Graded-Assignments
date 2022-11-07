@@ -8,6 +8,7 @@ sys.path.insert(0, str(project_dir.joinpath('src')))  # nopep8
 
 from compare import compare
 import EKFSLAM as EKFSLAM
+import solution.EKFSLAM as solu_EKFSLAM
 from solution.solu_usage_checker import UsageChecker
 
 
@@ -27,7 +28,7 @@ class Test_EKFSLAM__f:
             _self_s, x_s, u_s = deepcopy(values)
 
             ret = EKFSLAM.EKFSLAM.f(_self, x, u)
-            ret_s = EKFSLAM.EKFSLAM.f(_self_s, x_s, u_s)
+            solu_EKFSLAM.EKFSLAM.f(_self_s, x_s, u_s)
 
             compare(_self, _self_s)
             compare(x, x_s)
